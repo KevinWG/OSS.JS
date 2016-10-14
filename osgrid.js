@@ -1,9 +1,9 @@
 ﻿+function ($) {
 
-    var defaultTemplate = " <table class=\"table table-striped table-border table-bordered table-hover\"><thead class=\"page-list-header\"></thead><tbody class=\"page-list-content\"></tbody></table><div class=\"well page-list-footer\"></div>";
+    var defaultTemplate = " <table id=\"simple-table\"  class=\"table table-striped table-border table-bordered table-hover\"><thead class=\"page-list-header\"></thead><tbody class=\"page-list-content\"></tbody></table><div class=\"well page-list-footer\"></div>";
 
     var OSGrid = function (element, option) {
-       
+
         this.opt = option;
         this.element = $(element);
         this.element.addClass("osgrid-list");
@@ -17,9 +17,14 @@
         this.opt.Container.Footer = this.opt.Container.Footer || ".page-list-footer";
 
         //方法部分
-        this.opt.Methods.ExtSendParas = this.convertToFunc(this.opt.Methods.ExtSendParas);
-        this.opt.Methods.DataBound = this.convertToFunc(this.opt.Methods.DataBound);
+        this.opt.Methods.ExtSendParas = this.convertToFunc(this.opt.Methods.ExtSendParas, function () { });
+        this.opt.Methods.DataBound = this.convertToFunc(this.opt.Methods.DataBound, function () { });
         this.opt.Methods.GetDataFunc = this.convertToFunc(this.opt.Methods.GetDataFunc);
+
+        this.opt.Methods.HeaderFormat = this.convertToFunc(this.opt.Methods.HeaderFormat);
+        this.opt.Methods.RowFormat = this.convertToFunc(this.opt.Methods.RowFormat);
+        this.opt.Methods.FooterFormat = this.convertToFunc(this.opt.Methods.FooterFormat);
+      
 
         //  头部html格式化
         if (!this.opt.Methods.HeaderFormat) {
@@ -33,6 +38,7 @@
                 return headerHtml + "</tr>";
             };
         }
+
         // 行格式化   tr里的内容
         if (!this.opt.Methods.RowFormat) {
             this.opt.Methods.RowFormat = function (row, headers) {
@@ -47,11 +53,12 @@
                     var itemValue = row[header.ColumnName];
                     (itemValue === null || itemValue === undefined) && (itemValue = '')
 
-                    contentHtml += "<td class='" + header.Class + "'>" + (isFormat ? header.ContentFormat(itemValue, row) : itemValue) + "</td>";
+                    contentHtml += "<td>" + (isFormat ? header.ContentFormat(itemValue, row) : itemValue) + "</td>";
                 }
                 return contentHtml + "</tr>";
             };
         }
+
         //  分页信息格式化部分
         if (!this.opt.Methods.FooterFormat) {
             this.opt.Methods.FooterFormat = function (page) {
@@ -112,6 +119,7 @@
         refresh: function () {
             this.render();
         },
+
         //  执行控件渲染
         render: function render() {
 
@@ -209,14 +217,14 @@
             os.render();
         },
         // 字符串转化为方法
-        convertToFunc: function (strFunc) {
+        convertToFunc: function (strFunc, defautFun) {
             var func = null;
             if (!!strFunc
                 && (typeof (strFunc) == "function"
                     || typeof (func = eval(strFunc)) == "function")) {
                 return func || strFunc;
             }
-            return function () { };
+            return defautFun || null;
         }
     };
 

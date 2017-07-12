@@ -49,14 +49,14 @@ $("#container").osgrid(opt)
 
   methods: {
       //  获取数据源方法
-      getDataFunc: function(proNode, loadDataFunc) {
+      getSource: function(proNode, callBack) {
           var treeData = [
               { id: 1, name: "ceshi1", parentId: 0 },
               { id: 2, name: "ceshi2", parentId: 1 },
               { id: 3, name: "ceshi3", parentId: 0 },
               { id: 4, name: "ceshi4", parentId: 2 }
           ];
-          loadDataFunc(treeData);
+          callBack(treeData);
       },
 
       //  选中事件

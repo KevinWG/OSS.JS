@@ -44,8 +44,9 @@ $("#container").osgrid(opt)
   valueField: "id",
   parentField: "parentId",
 
-  isLoadAll: true,
-  isSpreaded: true,
+  isRemote: false,     //  是否远程加载，子节点会延迟渲染
+  isDeferred: false,   //  是否延迟加载，isRemote=true 时，isDeferred 恒为 true
+  isOpen: false,       //  首次加载是否全部展开状态,isDeferred=true时，isOpen 恒为 false
 
   methods: {
       //  获取数据源方法

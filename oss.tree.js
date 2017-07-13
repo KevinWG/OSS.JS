@@ -32,7 +32,8 @@
     *  </ul>
     *
     *  控件加载生命流程：
-    *  getSource - (dataItem,callBack) dataItem为上个节点数据，初次为空。callBack 加载回调方法，数据异步获取后callBack(data)完成控件加载
+    *  
+    *  initail($control,sourcePromise) - sourcePromise 是对 getSource 封装后返回的promise对象
     *     => renderLeafs($parentLi，节点数据列表)  - 加载页容器
     *        => renderLeafDetail（$parentul,单项数据） - 加载具体单叶内容
     *           如果含有子项，递归 renderLeafs
@@ -52,7 +53,7 @@
     * 
     *    $ele.ostree("source", list)
     *       @param {} list 【可选】要更新的数据源
-    *       @returns {}  如果list为空, 返回当前完整数据源，否则返回 ostree 对象
+    *       @returns {}  如果list为空, 返回当前完整数据源，否则更新 数据源并渲染 然后返回 ostree 对象
     *             返回的数据源 在 isRemote=true 时，因为节点加载情况不一，可能会和 远程真实数据源 数据有部分出入
     *
     * 用户自定义事件部分，请参阅下方 defaultOption 注释

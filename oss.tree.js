@@ -76,17 +76,33 @@
         isOpen: false,       //  首次加载是否是展开状态,isDeferred=true时，isOpen 恒为 false
 
         methods: {
-            //  获取数据源方法
-            getSource: function (nodeKey, callBack) { },
-            //  选中事件
-            chosen: function (dataItem, $element) { },
+            /**
+             * 获取数据源方法
+             * @param {} parentItem 
+             * @param {} callBack 
+             */
+            getSource: function (parentItem, callBack) { },
 
-            //  每一个层级执行完成之后事件
-            //  data 如果是同级元素，则是全部数据，如果是层级数据，则是子集数据
-            //  element 当前层级的ul对象
-            dataBound: function (data, $element) { },
 
-            //  绑定每个对象时触发
+            /**
+             * 选中叶节点事件
+             * @param {} item 选中节点数据
+             * @param {} $leaf 选中节点对象
+             */
+            chosen: function (item, $leaf) { },
+
+            /**
+             *   层级数据绑定完成后事件
+             * @param {} items 当前层级数据对象列表
+             * @param {} $ul 当前层级的ul对象
+             */
+            dataBound: function (items, $ul) { },
+
+            /**
+             * 单个对象绑定后事件
+             * @param {} dateItem 当前数据对象
+             * @param {} $leaf 当前页面对象
+             */
             dataBounding: function (dateItem, $leaf) { },
 
             /**
@@ -96,7 +112,7 @@
              */
             format: function (item) {
                 var value = item[this.opt.textField];
-                return $(`<span class='leaf-text'>${value}</span>`);
+                return $("<span class='leaf-text'>" + value + "</span>");
             }
 
         }
@@ -166,20 +182,22 @@
 
             // 获取当前渲染数据 
             var leafItems = [];
-            const restData = [];  // 如果平级且不延迟加载，获取剩余未渲染的数据便于下次递归使用
+            var restData = null;  // 如果平级且不延迟加载，获取剩余未渲染的数据便于下次递归使用
 
-            if (opt.IsIndented) {
+            if (opt.IsIndented || opt.isRemote) {
 
                 leafItems = data || [];
 
             } else {
+
+                restData = [];
                 const parentVal = !dataItem ? opt.defaultParentVal : dataItem[opt.valueField];
 
                 for (let i = 0, count = 0; i < data.length; i++) {
 
                     if (parentVal === data[i][opt.parentField]) {
                         leafItems[count++] = data[i];
-                    } else if (!opt.isDeferred){
+                    } else {
                         restData[i - count] = data[i];
                     }
                 }
@@ -191,7 +209,7 @@
                 if (!opt.isDeferred || !os.firstLoad) {
                     $leafLi.find(".tree-icon:first").hide();
                 }
-                return;
+                return restData;
             }
 
             //  处理子集容器
@@ -208,9 +226,13 @@
                 if (opt.isOpen && os.firstLoad) {
                     os.switch($leafLi, "open");
                 }
-
             }
-            
+
+            // 全量加载（平级格式），异步渲染时，保存下次查询的数组
+            if (opt.isDeferred && !!restData) {
+                os.$element.data("temp-rest-dataset", restData);
+            }
+
             // 循环递归渲染节点
             for (let j = 0; j < leafItems.length; j++) {
 
@@ -218,11 +240,13 @@
                 const $subLeaf = os.renderLeafDetail($ul, subDataItem);
 
                 if (!opt.isDeferred) {
-                    os.renderLeafs($subLeaf,
+                    restData = os.renderLeafs($subLeaf,
                         opt.IsIndented ? subDataItem[opt.childrenField] : restData);
                 }
             }
+
             opt.methods.dataBound(leafItems, $ul); //  数据完成之后执行事件
+            return restData;
         },
 
         renderLeafDetail: function ($ul, dataItem) {
@@ -231,7 +255,7 @@
             
             // 设置叶元和数据，并绑定点击事件
             //  li 中会包含自身内容  以及  下属子节点列表的ul
-            const $leafLi = $(`<li class='tree-leaf' leaf-key='${dataItem[opt.valueField]||""}'></li>`);
+            const $leafLi = $("<li class='tree-leaf' leaf-key='"+(dataItem[opt.valueField]||'')+"'></li>");
             $leafLi.data("tree-item-data", dataItem);
          
             //  叶元素自身内容部分
@@ -298,14 +322,21 @@
 
                                     os.renderLeafs($leafLi, dataList);
                                     parSet.push.apply(parSet, dataList);
-
+                                    
                                     open($leafLi, $leafIcon);
                                 }
                             });
+
                             return;
+                        } else {
+
+                            if (!opt.IsIndented) {
+                                parSet = os.$element.data("temp-rest-dataset")||[];
+                            }
+                            os.renderLeafs($leafLi, parSet);
                         }
 
-                        os.renderLeafs($leafLi, parSet);
+                      
                     }
                 }
                 open($leafLi, $leafIcon);

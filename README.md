@@ -2,35 +2,40 @@
 
 一.使用方式：
 ```js
- var opt = { displayHeader: true,
-  page:
-  {
-     is_page: true,
-     size: 8,
-     cur_page: 1
-  },
-
-  container: {
-     header: "",
-     content: "",
-     footer: ""
-  },
-
-  methods: {
-    // 扩展post之前的参数
-    extSendParas: function () { return {}; },
-    //  获取数据源方法
-    getDataFunc: function (pageData, loadDataFunc) {
-		$.post("/ajax/url",pageData,function(res){
-			loadDataFunc(res);
-        })  
-    },
-    //数据绑定完成之后
-    dataBound: function () { }
-  }
-}
-
-$("#container").osstable(opt)
+  $(function() {
+            $("#test-list").osstable({
+                headers: [
+                    {
+                      
+                        title: "名称",
+                        col_name: "name",
+                        col_format: null
+                    },
+                    {
+                        title: "操作",
+                        col_name: "id",
+                        col_format: function(rowData) {
+                            return "<button onclick=\"alert('" + rowData.id + "')\"> 修改</button>";
+                        }
+                    }
+                ],
+                methods: {
+                    //  获取数据源方法
+                    getSource: function(proNode, callBack) {
+                        var list = {
+                            total: 4,
+                            data:[
+                                { id: 1, name: "ceshi1" },
+                                { id: 2, name: "ceshi2" },
+                                { id: 3, name: "ceshi3" },
+                                { id: 4, name: "ceshi4" }
+                            ]
+                        };
+                        callBack(list);
+                    }
+                }
+            });
+        });
 ```
 
 

@@ -1,6 +1,6 @@
 ﻿+function ($) {
 
-    var defaultTemplate = " <table  class=\"table table-responsive table-bordered table-hover\"><thead class=\"oss-table-header\"></thead><tbody class=\"oss-table-body\"></tbody></table><div class=\"oss-table-footer\"></div>";
+    var defaultTemplate = " <table  class=\"table table-bordered table-hover table-responsive-sm\"><thead class=\"oss-table-header\"></thead><tbody class=\"oss-table-body\"></tbody></table><div class=\"oss-table-footer\"></div>";
 
     var OSSTable = function (element, option) {
 
@@ -8,32 +8,26 @@
         this.element = $(element);
         this.element.addClass("osstable-list");
 
-        this.opt.Headers = this.opt.Headers || [];
+        this.opt.headers = this.opt.headers || [];
         this.opt.page = this.opt.page || { is_page: true, size: 8, cur_page: 1 };
-
-        this.opt.container = this.opt.container || {};
-        this.opt.container.header = this.opt.container.header || ".oss-table-header";
-        this.opt.container.content = this.opt.container.content || ".oss-table-body";
-        this.opt.container.footer = this.opt.container.footer || ".oss-table-footer";
-
+        
         //方法部分
         this.opt.methods.extSendParas = this.convertToFunc(this.opt.methods.extSendParas, function () { });
         this.opt.methods.dataBound = this.convertToFunc(this.opt.methods.dataBound, function () { });
-        this.opt.methods.getDataFunc = this.convertToFunc(this.opt.methods.getDataFunc);
+        this.opt.methods.getSource = this.convertToFunc(this.opt.methods.getSource);
 
         this.opt.methods.headerFormat = this.convertToFunc(this.opt.methods.headerFormat);
         this.opt.methods.rowFormat = this.convertToFunc(this.opt.methods.rowFormat);
         this.opt.methods.footerFormat = this.convertToFunc(this.opt.methods.footerFormat);
-      
-
+        
         //  头部html格式化
         if (!this.opt.methods.headerFormat) {
             this.opt.methods.headerFormat = function (headers) {
                 var headerHtml = "<tr>";
-                for (var i = 0; i < headers.length; i++) {
-                    var header = headers[i];
-                    var width = "style='width:" + header.Width + "'";
-                    headerHtml += "<th class='text-center' " + (!!header.Width ? width : "''") + ">" + header.Title + "</th>";
+                for (let i = 0; i < headers.length; i++) {
+                    const header = headers[i];
+                    const width = "style='width:" + header.width + "'";
+                    headerHtml += "<th class='text-center' " + (!!header.width ? width : "''") + ">" + header.title + "</th>";
                 }
                 return headerHtml + "</tr>";
             };
@@ -42,18 +36,21 @@
         // 行格式化   tr里的内容
         if (!this.opt.methods.rowFormat) {
             this.opt.methods.rowFormat = function (row, headers) {
-                var contentHtml = "<tr>";
-                for (var i = 0; i < headers.length; i++) {
-                    var header = headers[i];
+                var contentHtml = "<tr  class='text-center'>";
+                for (let i = 0; i < headers.length; i++) {
+                    const header = headers[i];
+                    let itemValue = row[header.col_name];
 
-                    var isFormat = !!header.ContentFormat
-                        && (typeof (header.ContentFormat) == "function"
-                            || typeof (header.ContentFormat = eval(header.ContentFormat)) == "function");
+                    const isFormat = !!header.col_format
+                        && (typeof (header.col_format) == "function"
+                            || typeof (header.col_format = eval(header.col_format)) == "function");
 
-                    var itemValue = row[header.ColumnName];
-                    (itemValue === null || itemValue === undefined) && (itemValue = '')
-
-                    contentHtml += "<td>" + (isFormat ? header.ContentFormat(itemValue, row) : itemValue) + "</td>";
+                    if (isFormat) {
+                        itemValue = header.col_format(row) || itemValue;
+                    }
+                    
+                    (itemValue === null || itemValue === undefined) && (itemValue = "");
+                    contentHtml += "<td>" + itemValue + "</td>";
                 }
                 return contentHtml + "</tr>";
             };
@@ -63,7 +60,7 @@
         if (!this.opt.methods.footerFormat) {
             this.opt.methods.footerFormat = function (page) {
                 // 1.  分页
-                var numSidCount = 4;
+                const numSidCount = 4;
                 var pageHtml = "";
                 if (page.total_page > 0) {
                     pageHtml += "<ul class=\"pagination justify-content-center\">";
@@ -92,7 +89,7 @@
                     pageHtml += " </ul >";
                 }
            
-                return pageHtml + countHtml;
+                return pageHtml ;
             }
         }
 
@@ -119,25 +116,25 @@
         //  执行控件渲染
         render: function render() {
 
-            var os = this;
-            var page = os.opt.page;
-            var sendData = os.opt.methods.extSendParas();
+            var ossTable = this;
+            var page = ossTable.opt.page;
+            var sendData = ossTable.opt.methods.extSendParas();
             sendData = $.extend(true, sendData, page);
 
-            var contentcontainer = os.opt.container.content;
-            var $content = os.element.find(contentcontainer);
-            $content.html("<tr><td colspan='" + os.opt.Headers.length + "'>加载中...</td></tr>");
+            var contentcontainer = ossTable.opt.container.body;
+            var $content = ossTable.element.find(contentcontainer);
+            $content.html("<tr><td colspan='" + ossTable.opt.headers.length + "'>加载中...</td></tr>");
 
-            this.opt.methods.getDataFunc(sendData, function (data) {
+            this.opt.methods.getSource(sendData, function (data) {
 
                 //初始化行数据
-                os.initailContent(data);
+                ossTable.initailContent(data);
 
                 // 初始化页脚
-                os.initailFooter(data);
+                ossTable.initailFooter(data);
             });
             //初始化头部
-            os.initailHeader();
+            ossTable.initailHeader();
         },
 
         //初始化加载头部
@@ -147,7 +144,7 @@
                 && !this.element.hasInitialHeader) {
 
                 var headercontainer = this.opt.container.header;
-                var html = this.opt.methods.headerFormat(this.opt.Headers);
+                var html = this.opt.methods.headerFormat(this.opt.headers);
 
                 if (!!html) {
                     this.element.find(headercontainer).html(html);
@@ -159,9 +156,9 @@
         //初始化加载内容
         initailContent: function (data) {
 
-            var dataList = data.Data;
+            var dataList = data.data;
 
-            var contentcontainer = this.opt.container.content;
+            var contentcontainer = this.opt.container.body;
             var $content = this.element.find(contentcontainer);
             $content.html("");
 
@@ -169,11 +166,11 @@
 
                 for (var d = 0; d < dataList.length; d++) {
                     var dataItem = dataList[d];
-                    var html = this.opt.methods.rowFormat(dataItem, this.opt.Headers);
+                    var html = this.opt.methods.rowFormat(dataItem, this.opt.headers);
                     $content.append(html);
                 }
             } else {
-                $content.html("<tr><td colspan='" + this.opt.Headers.length + "'>暂无数据！</td></tr>");
+                $content.html("<tr><td colspan='" + this.opt.headers.length + "'>暂无数据！</td></tr>");
             }
 
         },
@@ -181,15 +178,15 @@
         //初始化加载页尾分页等信息
         initailFooter: function (data) {
             var ossTable = this;
-            var footercontainer = os.opt.container.footer;
-            var $footer = os.element.find(footercontainer);
+            var footercontainer = ossTable.opt.container.footer;
+            var $footer = ossTable.element.find(footercontainer);
 
             if (this.opt.page.is_page) {
                 //   前端根据  data-osstable-goto  确定跳转页面 
                 ossTable.opt.page.total = data.total;
                 ossTable.opt.page.total_page = Math.ceil(data.total_page/ ossTable.opt.page.size);
 
-                var html = os.opt.methods.footerFormat(os.opt.page);
+                var html = ossTable.opt.methods.footerFormat(ossTable.opt.page);
                 $footer.html(html);
 
                 $footer.find("[data-osstable-goto]").unbind("click").bind("click",
@@ -228,27 +225,26 @@
     var defaultOption = {
 
         displayHeader: true,
+        container: {
+            header: ".oss-table-header",
+            body: ".oss-table-body",
+            footer: ".oss-table-footer"
+        },
 
         page:
         {
             is_page: true,
-            size: 8,
+            size: 20,
             cur_page: 1
         },
-
-        container: {
-            header: "",
-            content: "",
-            footer: ""
-        },
-
+        headers: [{ width: "", title: "名称", col_name: "name", col_format: function(rowData) {} }],
         methods: {
 
             // 扩展post之前的参数
             extSendParas: function () { return {}; },
 
             //  获取数据源方法
-            getDataFunc: function (pageData, loadDataFunc) { },
+            getSource: function (pageData, loadDataFunc) { },
 
             //数据绑定完成之后
             dataBound: function () { }
@@ -294,7 +290,7 @@
     };
 
     //设置初始值
-    $.fn.osstable.constructor = osstable;
+    $.fn.osstable.constructor = OSSTable;
 
     // 表格冲突处理
     $.fn.osstable.noConflict = function () {

@@ -2,36 +2,35 @@
 
 一.使用方式：
 ```js
- var opt = { IsDisplayHeader: true,
-  Page:
+ var opt = { displayHeader: true,
+  page:
   {
-     IsPage: true,
-     PageSize: 8,
-     CurrentPage: 1
+     is_page: true,
+     size: 8,
+     cur_page: 1
   },
 
-  Container: {
-     Header: "",
-     Content: "",
-     Footer: ""
+  container: {
+     header: "",
+     content: "",
+     footer: ""
   },
 
-  Methods: {
-     // 扩展post之前的参数
-     ExtSendParas: function () { return {}; },
-     //  获取数据源方法
-     GetDataFunc: function (pageData, loadDataFunc) {
+  methods: {
+    // 扩展post之前的参数
+    extSendParas: function () { return {}; },
+    //  获取数据源方法
+    getDataFunc: function (pageData, loadDataFunc) {
 		$.post("/ajax/url",pageData,function(res){
 			loadDataFunc(res);
-		})
-   },
-
-   //数据绑定完成之后
-   DataBound: function () { }
+        })  
+    },
+    //数据绑定完成之后
+    dataBound: function () { }
   }
 }
 
-$("#container").osgrid(opt)
+$("#container").osstable(opt)
 ```
 
 

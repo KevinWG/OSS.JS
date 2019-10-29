@@ -63,30 +63,30 @@
                 const numSidCount = 4;
                 var pageHtml = "";
                 if (page.total_page > 0) {
-                    pageHtml += "<ul class=\"pagination justify-content-center\">";
+                    pageHtml += "<ul class=\"pagination pagination-sm justify-content-center\">";
                     if (page.cur_page > 1) {
-                        pageHtml += "<li><a class=\"page-item\" data-osstable-goto=\"1\" href=\"javascript:void(0);\">首页</a></li>";
+                        pageHtml += "<li class=\"page-item\"><a class=\"page-link\" data-osstable-goto=\"1\" href=\"javascript:void(0);\">首页</a></li>";
                     }
                     if (page.cur_page > numSidCount + 1) {
-                        pageHtml += "<li class=\"page-item disabled\"><a href=\"#\">...</a></li>";
+                        pageHtml += "<li class=\"page-item disabled\"><span class=\"page-link\">...</span></li>";
                     }
                     for (var i = page.cur_page - numSidCount > 0 ? page.cur_page - numSidCount : 1; i < page.cur_page; i++) {
-                        pageHtml += "<li><a class=\"page-item\" data-osstable-goto=\"" + i + "\" href=\"javascript:void(0);\">" + i + "</a></li>";
+                        pageHtml += "<li class=\"page-item\"> <a class=\"page-link\" data-osstable-goto=\"" + i + "\" href=\"javascript:void(0);\">" + i + "</a></li>";
                     }
 
-                    pageHtml += "<li class=\"page-item active\"><a href=\"javascript:void(0);\">" + page.cur_page + "</a></li>";
+                    pageHtml += "<li class=\"page-item active\"><span class=\"page-link\">" + page.cur_page + "</span></li>";
 
                     for (var j = page.cur_page + 1; j <= page.total_page && j <= page.cur_page + numSidCount; j++) {
-                        pageHtml += " <li><a class=\"page-item\" data-osstable-goto=\"" + j + "\" href=\"javascript:void(0);\">" + j + "</a></li>";
+                        pageHtml += " <li class=\"page-item\"><a class=\"page-link\" data-osstable-goto=\"" + j + "\" href=\"javascript:void(0);\">" + j + "</a></li>";
                     }
 
                     if (page.cur_page + numSidCount < page.total_page) {
-                        pageHtml += " <li class=\"page-item disabled\"><a href=\"#\">...</a></li>";
+                        pageHtml += " <li class=\"page-item disabled\"><span class=\"page-link\">...</span></li>";
                     }
                     if (page.cur_page < page.total_page) {
-                        pageHtml += "<li><a class=\"page-item\" data-osstable-goto=\"" + page.total_page + "\" href=\"javascript:void(0);\">末页</a></li>";
+                        pageHtml += "<li class=\"page-item\"><a class=\"page-link\" data-osstable-goto=\"" + page.total_page + "\" href=\"javascript:void(0);\">尾页</a></li>";
                     }
-                    pageHtml += " </ul >";
+                    pageHtml += " </ul>";
                 }
            
                 return pageHtml ;
@@ -184,7 +184,7 @@
             if (this.opt.page.is_page) {
                 //   前端根据  data-osstable-goto  确定跳转页面 
                 ossTable.opt.page.total = data.total;
-                ossTable.opt.page.total_page = Math.ceil(data.total_page/ ossTable.opt.page.size);
+                ossTable.opt.page.total_page = Math.ceil(data.total/ ossTable.opt.page.size);
 
                 var html = ossTable.opt.methods.footerFormat(ossTable.opt.page);
                 $footer.html(html);

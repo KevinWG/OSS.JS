@@ -84,6 +84,6 @@
   }
  }
  $(function () {
-     $("#treeContainer").ostree(opt);
+     $("#treeContainer").osstree(opt);
  });
 ```

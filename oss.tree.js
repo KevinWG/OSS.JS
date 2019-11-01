@@ -1,63 +1,63 @@
-﻿   /**
-    *
-    *  数据格式：[{id:1,name:"ceshi", parentId:0 , children:[{..}] }]
-    *
-    *  支持两种形式(childrenField设置是否为空来判断是否是分级结构)
-    *        1. 数据格式同级，通过 parentId（字段可定义） 关联
-    *        2. 数据已经分级，挂载在 children（字段可定义） 下
-    *
-    *  数据加载形式分两种：
-    *  如果设置 isRemote=true，渲染第一层节点，点击触发getSource方法，并传入当前节点信息
-    *  如果设置 isRemote=false，但
-    *         isDeferred=false，会递归渲染全部节点
-    *         isDeferred=true, 只渲染第一层节点，点击触发渲染下一层，数据源来自第一次加载的数据源
-    * 
-    *  如果设置 isOpen 为 true 树形默认展开，否则 收起 状态
-    *
-    *  ul 作为树形构造容器，li对应每个树叶节点
-    *  <ul>
-    *    <li>
-    * 
-    *      <div>    （绑定了自定义 chosen 事件）
-    * 
-    *         <i> +/- </i>   （点击时触发 switch 方法，已阻止冒泡）
-    * 
-    *         <span> 展示内容 </span> （可通过自定义 format 返回自定义元素）
-    * 
-    *      </div>
-    * 
-    *      <ul>  子集  </ul>
-    * 
-    *    </li>
-    *  </ul>
-    *
-    *  控件加载生命流程：
-    *  
-    *  initail($control,sourcePromise) - sourcePromise 是对 getSource 封装后返回的promise对象
-    *     => renderLeafs($parentLi，节点数据列表)  - 加载页容器
-    *        => renderLeafDetail（$parentul,单项数据） - 加载具体单叶内容
-    *           如果含有子项，递归 renderLeafs
-    *
-    * 可供使用的内部方法：
-    * 
-    *    $ele.ostree("switch",$leafLi,state)
-    *       @param {} $leafLi - 当前叶节点元素
-    *       @param {} state - "open/close" 【可选】  参数如果不填，则根据已有状态自动转换
-    *     
-    *    $ele.ostree("add", $parentLeafLi, dataItem)     
-    *       @param {} $parentLeafLi 父叶节点对象
-    *       @param {} data  添加的节点数据对象
-    *
-    *    $ele.ostree("del", $leafLi)
-    *       @param {} $leafLi 需要删除的节点对象
-    * 
-    *    $ele.ostree("source", list)
-    *       @param {} list 【可选】要更新的数据源
-    *       @returns {}  如果list为空, 返回当前完整数据源，否则更新 数据源并渲染 然后返回 ostree 对象
-    *             返回的数据源 在 isRemote=true 时，因为节点加载情况不一，可能会和 远程真实数据源 数据有部分出入
-    *
-    * 用户自定义事件部分，请参阅下方 defaultOption 注释
-    */
+﻿/**
+ *
+ *  数据源格式：[{id:1,name:"ceshi", parentId:0 , children:[{..}] }]
+ *
+ *  支持两种形式(childrenField设置是否为空来判断是否是分级结构)
+ *        1. 数据格式同级，通过 parentId（字段可定义） 关联
+ *        2. 数据已经分级，挂载在 children（字段可定义） 下
+ *
+ *  数据加载形式分两种：
+ *  如果设置 isRemote=true，渲染第一层节点，点击触发getSource方法，并传入当前节点信息
+ *  如果设置 isRemote=false，但
+ *         isDeferred=false，会递归渲染全部节点
+ *         isDeferred=true, 只渲染第一层节点，点击触发渲染下一层，数据源来自第一次加载的数据源
+ * 
+ *  如果设置 isOpen 为 true 树形默认展开，否则 收起 状态
+ *
+ *  ul 作为树形构造容器，li对应每个树叶节点
+ *  <ul>
+ *    <li>
+ * 
+ *      <div>    （绑定了自定义 chosen 事件）
+ * 
+ *         <i> +/- </i>   （点击时触发 switch 方法，已阻止冒泡）
+ * 
+ *         <span> 展示内容 </span> （可通过自定义 format 返回自定义元素）
+ * 
+ *      </div>
+ * 
+ *      <ul>  子集  </ul>
+ * 
+ *    </li>
+ *  </ul>
+ *
+ *  控件加载生命流程：
+ *  
+ *  initail($control,sourcePromise) - sourcePromise 是对 getSource 封装后返回的promise对象
+ *     => renderLeafs($parentLi，节点数据列表)  - 加载页容器
+ *        => renderLeafDetail（$parentul,单项数据） - 加载具体单叶内容
+ *           如果含有子项，递归 renderLeafs
+ *
+ * 可供使用的内部方法：
+ * 
+ *    $ele.osstree("switch",$leafLi,state)
+ *       @param {} $leafLi - 当前叶节点元素
+ *       @param {} state - "open/close" 【可选】  参数如果不填，则根据已有状态自动转换
+ *     
+ *    $ele.osstree("add", $parentLeafLi, dataItem)     
+ *       @param {} $parentLeafLi 父叶节点对象
+ *       @param {} data  添加的节点数据对象
+ *
+ *    $ele.osstree("del", $leafLi)
+ *       @param {} $leafLi 需要删除的节点对象
+ * 
+ *    $ele.osstree("source", list)
+ *       @param {} list 【可选】要更新的数据源
+ *       @returns {}  如果list为空, 返回当前完整数据源，否则更新 数据源并渲染 然后返回 osstree 对象
+ *             返回的数据源 在 isRemote=true 时，因为节点加载情况不一，可能会和 远程真实数据源 数据有部分出入
+ *
+ * 用户自定义事件部分，请参阅下方 defaultOption 注释
+ */
 
 +function ($) {
 
@@ -78,37 +78,37 @@
         methods: {
             /**
              * 获取数据源方法
-             * @param {} parentItem 
-             * @param {} callBack 
+             * @param {any} parentItem  父节点
+             * @param {any} callBack 加载数据后回调方法 
              */
             getSource: function (parentItem, callBack) { },
 
 
             /**
              * 选中叶节点事件
-             * @param {} item 选中节点数据
-             * @param {} $leaf 选中节点对象
+             * @param {any} item 选中节点数据
+             * @param {any} $leaf 选中节点对象
              */
             chosen: function (item, $leaf) { },
 
             /**
              *   层级数据绑定完成后事件
-             * @param {} items 当前层级数据对象列表
-             * @param {} $ul 当前层级的ul对象
+             * @param {any} items 当前层级数据对象列表
+             * @param {any} $ul 当前层级的ul对象
              */
             dataBound: function (items, $ul) { },
 
             /**
              * 单个对象绑定后事件
-             * @param {} dateItem 当前数据对象
-             * @param {} $leaf 当前页面对象
+             * @param {any} dateItem 当前数据对象
+             * @param {any} $leaf 当前页面对象
              */
             dataBounding: function (dateItem, $leaf) { },
 
             /**
              *  叶格式化方法
-             * @param {} item  数据项
-             * @returns {} 返回 jQuery 元素对象
+             * @param {any} item  数据项
+             * @returns {any} 返回 jQuery 元素对象
              */
             format: function (item) {
                 var value = item[this.opt.textField];
@@ -117,8 +117,8 @@
 
         }
     };
-    var OSTree = function(element, option) {
-    
+    var OSSTree = function (element, option) {
+
         const opt = option;
 
         if (opt.isRemote) {
@@ -149,13 +149,13 @@
         self.initail(self.$element, getSourcePromise({}, self.opt.methods.getSource));
 
         return self;
-    }
+    };
 
 
-    OSTree.prototype = {
-        
-        initail: function ($control,sourcePromise) {
-            
+    OSSTree.prototype = {
+
+        initail: function ($control, sourcePromise) {
+
             var self = this;
             $control.children("ul").html("");
 
@@ -170,7 +170,7 @@
                     self.$element.find("ul:first").data("tree-root", true);
 
                 }
-            
+
             });
         },
 
@@ -181,8 +181,8 @@
             const dataItem = $leafLi.data("tree-item-data");
 
             // 获取当前渲染数据 
-            var leafItems = [];
-            var restData = null;  // 如果平级且不延迟加载，获取剩余未渲染的数据便于下次递归使用
+            let leafItems = [];
+            let restData = null;  // 如果平级且不延迟加载，获取剩余未渲染的数据便于下次递归使用
 
             if (opt.IsIndented || opt.isRemote) {
 
@@ -205,7 +205,6 @@
 
             //  如果子集元素不存在
             if (leafItems.length === 0) {
-
                 if (!opt.isDeferred || !os.firstLoad) {
                     $leafLi.find(".tree-icon:first").hide();
                 }
@@ -216,10 +215,10 @@
             var $ul = $leafLi.children("ul:first");
             if ($ul.length === 0) {
 
-                $ul = $("<ul></ul>");
+                $ul = $("<ul class=\"oss-tree\"></ul>");
 
                 if (!$leafLi.data("tree-contain")) {  //  不是容器自身时，默认子集ul初始化时是折叠状态
-                    $ul.hide();  
+                    $ul.hide();
                 }
                 $leafLi.append($ul);
 
@@ -252,16 +251,16 @@
         renderLeafDetail: function ($ul, dataItem) {
             var os = this;
             var opt = os.opt;
-            
+
             // 设置叶元和数据，并绑定点击事件
             //  li 中会包含自身内容  以及  下属子节点列表的ul
-            const $leafLi = $("<li class='tree-leaf' leaf-key='"+(dataItem[opt.valueField]||'')+"'></li>");
+            const $leafLi = $("<li class='tree-leaf' leaf-key='" + (dataItem[opt.valueField] || '') + "'></li>");
             $leafLi.data("tree-item-data", dataItem);
-         
+
             //  叶元素自身内容部分
             const $leafDiv = $("<div class='leaf-body'></div>");   //  节点内容部分
             const $leafIcon = $("<i class='tree-icon plus'></i>");  //   节点内容 - icon 部分
-            const $leafText = opt.methods.format.call(os,dataItem);     //  节点内容 - 文本部分 ,用户可以自定义
+            const $leafText = opt.methods.format.call(os, dataItem);     //  节点内容 - 文本部分 ,用户可以自定义
 
             $leafDiv.append($leafIcon);
             $leafDiv.append($leafText);
@@ -293,16 +292,15 @@
 
         /**
          * 控制节点展开、关闭
-         * @param {} $leafLi  节点元素
-         * @param {} state  要控制的状态（"open/close"），不传/空 则根据当前已有状态自动转换
-         * @returns {} 
+         * @param {any} $leafLi  节点元素
+         * @param {any} state  要控制的状态（"open/close"），不传/空 则根据当前已有状态自动转换
          */
-        switch: function($leafLi,state) {
+        switch: function ($leafLi, state) {
             const os = this;
             const opt = os.opt;
 
             const $leafIcon = $leafLi.find(".tree-icon:first");
-            const setOpen = !state ? $leafIcon.hasClass("plus") : state==="open";
+            const setOpen = !state ? $leafIcon.hasClass("plus") : state === "open";
 
             if (setOpen) {
 
@@ -316,13 +314,13 @@
                         if (opt.isRemote) {
 
                             const dataItem = $leafLi.data("tree-item-data");
-                            getSourcePromise(dataItem, opt.methods.getSource).done(function(dataList) {
+                            getSourcePromise(dataItem, opt.methods.getSource).done(function (dataList) {
 
                                 if (dataList.length > 0) {
 
                                     os.renderLeafs($leafLi, dataList);
                                     parSet.push.apply(parSet, dataList);
-                                    
+
                                     open($leafLi, $leafIcon);
                                 }
                             });
@@ -331,12 +329,12 @@
                         } else {
 
                             if (!opt.IsIndented) {
-                                parSet = os.$element.data("temp-rest-dataset")||[];
+                                parSet = os.$element.data("temp-rest-dataset") || [];
                             }
                             os.renderLeafs($leafLi, parSet);
                         }
 
-                      
+
                     }
                 }
                 open($leafLi, $leafIcon);
@@ -347,16 +345,16 @@
                 $leafIcon.removeClass("minus").addClass("plus");
             }
 
-            function open($li,$icon) {
+            function open($li, $icon) {
                 $li.children("ul").show("slow");
                 $icon.removeClass("plus").addClass("minus");
             }
         },
-        
+
         /**
          *   添加叶节点
-         * @param {} $parentLeafLi 父叶节点对象
-         * @param {} data  添加的节点对象
+         * @param {any} $parentLeafLi 父叶节点对象
+         * @param {any} dataItem  添加的节点对象
          */
         add: function ($parentLeafLi, dataItem) {
 
@@ -376,7 +374,7 @@
 
         /**
          * 删除叶节点
-         * @param {} $leafLi 需要删除的节点对象
+         * @param {any} $leafLi 需要删除的节点对象
          */
         del: function ($leafLi) {
 
@@ -389,7 +387,7 @@
 
             var $parentLi = null;
             if (!isRoot) {
-                 $parentLi = $selfUl.closest("li");
+                $parentLi = $selfUl.closest("li");
             }
 
             const parentSet = getParentSet(self, $parentLi);
@@ -405,10 +403,10 @@
         },
         /**
          *  获取/更新数据源
-         * @param {} list 【可选】要更新的数据源
-         * @returns {}  如果为空返回当前完整数据源，否则返回 ostree 对象
+         * @param {any} list 【可选】要更新的数据源
+         * @returns {any}  如果为空返回当前完整数据源，否则返回 osstree 对象
          */
-        source: function(list) {
+        source: function (list) {
 
             if (!list) {
                 return this.dataSet;
@@ -427,6 +425,7 @@
      * 获取数据源的异步对象
      * @param {any} dataItem  上个节点数据对象
      * @param {any} source 数据源（方法/数组）- 传入方法时，会把 dataItem 作为参数传入
+     * @returns {any} promise
      */
     function getSourcePromise(dataItem, source) {
 
@@ -446,7 +445,7 @@
 
         var cuSet;
         const opt = osObj.opt;
-    
+
         if (!!$parentLeafLi && opt.IsIndented) {
 
             const currentItem = $parentLeafLi.data("tree-item-data");
@@ -454,7 +453,7 @@
             if (!currentItem[opt.childrenField]) {
                 currentItem[opt.childrenField] = [];
             }
-            cuSet = currentItem[opt.childrenField]; 
+            cuSet = currentItem[opt.childrenField];
 
         } else {
             cuSet = osObj.dataSet;
@@ -472,7 +471,7 @@
         }
         return function () { };
     }
-    
+
     function removeFromArray(obj, list) {
 
         var index;
@@ -491,11 +490,11 @@
         console.info(msg);
     }
 
-  
 
-    var old = $.fn.ostree;
 
-    $.fn.ostree = function (option) {
+    var old = $.fn.osstree;
+
+    $.fn.osstree = function (option) {
 
         var args = Array.apply(null, arguments);
         args.shift();
@@ -508,8 +507,8 @@
             var options = typeof option == "object" && option;
 
             if (!cacheData) {
-                options = $.extend(true, {},defaultOption, options);
-                $this.data("os.tree", (cacheData = new OSTree(this, options)));
+                options = $.extend(true, {}, defaultOption, options);
+                $this.data("os.tree", (cacheData = new OSSTree(this, options)));
             }
 
             if (typeof option == "string" && typeof cacheData[option] == "function") {
@@ -522,11 +521,11 @@
         else
             return this;
     }
-    $.fn.ostree.constructor = OSTree;
+    $.fn.osstree.constructor = OSSTree;
 
     // 树冲突处理
-    $.fn.ostree.noConflict = function () {
-        $.fn.ostree = old;
+    $.fn.osstree.noConflict = function () {
+        $.fn.osstree = old;
         return this;
     };
 }(window.jQuery);

@@ -433,9 +433,7 @@
         if ($.isFunction(source)) {
 
             source(dataItem, function (data) { defer.resolve(data); });
-
         } else {
-
             defer.resolve(source);
         }
         return defer.promise();
